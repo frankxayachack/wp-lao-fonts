@@ -3,7 +3,7 @@
   Plugin Name: Lao Fonts
   Plugin URI: http://frankkung.com
   Description: Plugin ສຳລັບປ່ຽນຟ້ອນໃນເວັບໄຊ້ຂອງທ່ານໃຫ້ໄປໃຊ້ຟ້ອນທີ່ສາມາດສະແດງຜົນກັບພາສາລາວໄດ້ດີ ເຊັ່ນ: Phetsarath OT, Saysettha OT, Lao Sans Pro...
-  Version: 1.2.4
+  Version: 2.0.2
   Author: Sengxay XAYACHACK
   Author URI: http://frankkung.com
   License: GPL
@@ -32,7 +32,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	 {
 		 wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	 }
-	 include __DIR__."/options.php";
+	// import jquery
+	function enqueue_script(){
+		$locate = plugins_url('assets/jquery-3.3.1.min.js',dirname(__FILE__));
+		wp_enqueue_script('my-js', $locate, array("jquery") );
+	}
+	add_action('admin_enqueue_scripts', 'enqueue_script');
+	include __DIR__."/options.php";
  }
 
 global $wpdb;
@@ -60,6 +66,9 @@ switch ($setFont)
 		break;
 	case $setFont=='NotoSerifLao':
 		LFS_NotoSerifLao();
+		break;
+	case $setFont=='Custom':
+		LFS_Custom();
 		break;
 	default:
 		LFS_phetsarath();
@@ -127,6 +136,17 @@ function LFS_NotoSerifLao()
 	function LFS_NotoSerifLao_f()
 	{
 		$locate = plugins_url('NotoSerifLao/style.css',__FILE__);
+		wp_register_style( 'lao_fonts',$locate);
+		wp_enqueue_style('lao_fonts');
+	}
+}
+
+function LFS_Custom()
+{
+	add_action('wp_enqueue_scripts','LFS_Custom_f');
+	function LFS_Custom_f()
+	{
+		$locate = plugins_url('Custom/style.css',__FILE__);
 		wp_register_style( 'lao_fonts',$locate);
 		wp_enqueue_style('lao_fonts');
 	}

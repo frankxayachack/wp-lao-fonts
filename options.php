@@ -10,16 +10,59 @@ if ( ! empty( $_POST ) && check_admin_referer( 'nonce_verify', 'chkNonce' ) ) {
 
 if(isset($_POST['submit']))
 {
-	$f = $_POST['LFS_fonts'];
-	if($f=== ''){
-		$f = 'phetsarath';
+	function success($f){
+		$safe_f = sanitize_text_field($f);
+		update_post_meta($post->ID,'LFS_fonts',$safe_f);
+		update_option("LFS_lao_font",$safe_f);
+		echo '<div id="message" class="updated fade"><p><h1>ອັບເດດແລ້ວ!</h1></p></div>';
+		// echo '<script>location.reload();</script>';
+	}
+
+
+	if($_POST['type']==="default"){
+		$f = $_POST['LFS_fonts'];
+		if($f=== ''){
+			$f = 'phetsarath';
+		}
+		success($f);
+
+	}else if($_POST['type']==="custom"){
+		
+		$target = plugin_dir_path(__FILE__)."Custom/";
+		$allowed =  array('ttf');
+		$count = 0;
+		if(count(array_filter($_FILES['file']['name']))<2){
+			echo '<div id="message" class="error notice"><p>ໄຟລ໌ Font ບໍ່ຄົບກະລຸນາເລືອກທັງ 2 Font!</p></div>';
+		}else{
+
+			foreach ($_FILES['file']['name'] as $filename) 
+			{
+				$ext = pathinfo($filename, PATHINFO_EXTENSION);
+				if(!in_array($ext,$allowed) ) {
+					echo '<div id="message" class="error notice"><p>ອະນຸຍາດໃຫ້ອັບໂຫລດພຽງ font ສະກຸນ ttf ເທົ່ານັ້ນ!</p></div>';
+				}else{
+					$temp=$target;
+					$tmp=$_FILES['file']['tmp_name'][$count];
+					if($count === 0){
+						$temp=$temp.'CustomEng.ttf';
+					}else{
+						$temp=$temp.'CustomLao.ttf';
+					}
+					move_uploaded_file($tmp,$temp);
+					$count=$count + 1;
+					$temp='';
+					$tmp='';
+				}
+			}
+
+		}
+		$f = "Custom";
+		success($f);
+	}else{
+		echo '<div id="message" class="error notice"><p>ຜິດພາດ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ!</p></div>';
 	}
 	
-	$safe_f = sanitize_text_field($f);
-	update_post_meta($post->ID,'LFS_fonts',$safe_f);
-	update_option("LFS_lao_font",$safe_f);
-	echo '<div id="message" class="updated fade"><p><h1>ອັບເດດແລ້ວ!</h1></p></div>';
-	echo '<script>location.reload();</script>';
+	
 }
 ?>
 
@@ -48,12 +91,16 @@ else if($chosen->option_value === "Dhyana")
 {
 	$fname = "Dhyana";
 }
-else if($chosen->option_value === "NotoSerifLao")
+else if($chosen->option_value === "NotoSerifLao"){
 	$fname = "Noto Serif Lao";
+}
+else if($chosen->option_value === "Custom"){
+	$fname = "Custom";
+}
+
 
 
 ?>
-
 <div class="wrap">
 <h1><span class="dashicons dashicons-admin-customizer"></span> ຕັ້ງຄ່າ Lao Fonts</h1>
 <br>
@@ -63,27 +110,72 @@ else if($chosen->option_value === "NotoSerifLao")
 <h1 stlye="text-shadow: 2px 2px #ff0000;"><u>ພາສາລາວ ສຳລັບ Wordpress</u></h1>
 <p style="font-size:22px">ທ່ານກຳລັງໃຊ້ຟ້ອນ <strong><span style="color:red"><?= esc_html($fname); ?></span></strong></p>
 <br>
-<form method="post">
+
 <table style="font-size:22px">
-	<tr>
-		<td>ເລືອກ Font ທີ່ຕ້ອງການ: </td>
-		<td>
-			<select style="font-size:18px;width:300px;" name="LFS_fonts" id="LFS_fonts">
-				<option value="phetsarath">Phetsarath OT</option>
-				<option value="NotoSerifLao">Noto Serif Lao</option>
-				<option value="LaoSansPro">Lao Sans Pro</option>
-				<option value="Saysettha">Saysettha OT</option>
-				<option value="Souliyo">Souliyo Key</option>
-				<option value="Dhyana">Dhyana</option>
-			</select>
-		</td>
-	<tr>
-	<tr>
-		<td><?php wp_nonce_field( 'nonce_verify', 'chkNonce' ); ?></td>
-		<td><input type="submit" value="ປ່ຽນ Font" name="submit" style="font-size:18px"></td>
-	</tr>
+		<tr>
+			<td>ເລືອກຮູບແບບ: </td>
+			<td>
+				<select style="font-size:18px;width:300px;" id="Menu">
+					<option value="defaultForm">ປົກກະຕິ</option>
+					<option value="customForm">ກຳນົດເອງ</option>
+				</select>
+			</td>
+		</tr>
 </table>
-</form>
+
+<div id="defaultForm" class="Form">
+	<form method="post">
+	<table style="font-size:22px">
+		<tr>
+			<td>ເລືອກ Font ທີ່ຕ້ອງການ: </td>
+			<td>
+				<select style="font-size:18px;width:300px;" name="LFS_fonts" id="LFS_fonts">
+					<option value="phetsarath">Phetsarath OT</option>
+					<option value="NotoSerifLao">Noto Serif Lao</option>
+					<option value="LaoSansPro">Lao Sans Pro</option>
+					<option value="Saysettha">Saysettha OT</option>
+					<option value="Souliyo">Souliyo Key</option>
+					<option value="Dhyana">Dhyana</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<input type="hidden" name="type" value="default" />
+			<td><?php wp_nonce_field( 'nonce_verify', 'chkNonce' ); ?></td>
+			<td><input type="submit" value="ປ່ຽນ Font" name="submit" style="font-size:18px"></td>
+		</tr>
+	</table>
+	</form>
+</div>
+
+<div id="customForm" class="Form">
+	
+	<form method="post" enctype="multipart/form-data">
+	<p style="color:red">ໝາຍເຫດ: ສາມາດນຳໃຊ້ໄດ້ພຽງແຕ່ font ປະເພດ ttf ເທົ່ານັ້ນ.</p>
+		<table style="font-size:16px">
+			<tr>
+				<td>English Font: </td>
+				<td>
+					<input name="file[]" type="file" require />
+				</td>
+			</tr>
+			<tr>
+				<td>Lao Font: </td>
+				<td>
+					<input name="file[]" type="file" require />
+				</td>
+			</tr>
+			<tr>
+				<input type="hidden" name="type" value="custom" />
+				<td><?php wp_nonce_field( 'nonce_verify', 'chkNonce' ); ?></td>
+				<td><input type="submit" value="ປ່ຽນ Font" name="submit" style="font-size:18px"></td>
+			</tr>
+		</table>
+	</form>
+
+</div>
+
+
 <br>
 <p style="font-weight:bold;font-size:18px;">ພັດທະນາໂດຍ : ທ.ແສງໄຊ ໄຊຍະຈັກ</p>
 <p><a href="http://frankkung.com/" target="_blank"><img src="<?= esc_url(plugins_url('Globe.png',__FILE__)); ?>" width="50" height="50"></a> <a href="http://facebook.com/frank.xayachack" target="_blank"><img src="<?= esc_url(plugins_url('facebook.png',__FILE__)); ?>" width="50" height="50"></a></p>
@@ -92,3 +184,21 @@ else if($chosen->option_value === "NotoSerifLao")
 <p style="font-weight:bold;font-size:18px;">ຊື່ບັນຊີ: SENGXAY XAYACHACK MR</p>
 <p style="font-weight:bold;font-size:18px;">ເລກບັນຊີ: 0301-2010-0370-1520-01</p>
 </div>
+
+<script>
+
+
+// function getForms(){
+	jQuery(document).ready(function( $ ){
+		$('#customForm').hide();
+
+		$(function() {
+			$('#Menu').change(function() {
+				$('.Form').hide();
+				$('#' + $(this).val()).show();
+			});
+		});
+
+	});
+
+</script>

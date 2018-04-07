@@ -1,8 +1,8 @@
-﻿=== Lao Fonts ===
+=== Lao Fonts ===
 Contributors: Sengxay XAYACHACK
 Tags: phetsarath, phetsarath ot, phetsarath for wordpress, phetsarath wp, ພາສາລາວ, ຟອນລາວ, font lao, Saysettha OT, Saysettha, lao for wordpress, Lao Sans Pro, Souliyo Key...
-Tested up to: 4.6
-Stable tag: 1.2.4
+Tested up to: 4.9.5
+Stable tag: 2.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,3 +45,6 @@ Edited settings.
 =1.2.3=
 Removed paypal donation link
 added BCEL one
+=2=
+Add Custom font function
+Users are freely to upload their fav font both in Eng and Lao to make it work together

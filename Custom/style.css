@@ -5,5 +5,5 @@ acronym, address, big, cite, code, del, dfn, em, font, ins, kbd, q, s, samp, sma
 strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, 
 caption, tbody, tfoot, thead, tr, th, td, textarea, input,
 .entry-title, .entry-header {
-	 font-family: "Open Sans", Helvetica, Arial, sans-serif,'Souliyo' !important; 
+	 font-family: "CustomEng","Open Sans", Helvetica, sans-serif,'CustomLao' !important; 
 }
